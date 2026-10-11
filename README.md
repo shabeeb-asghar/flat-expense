@@ -30,4 +30,5 @@ All routes except `/api/health` require the `x-api-key` header.
 |---|---|---|
 | GET | `/api/summary` | Budget, shortfall, balance and all entries with their computed breakdown |
 | POST | `/api/transactions` | Add an entry (`flat`, `owe`, `budget`, `settle`) |
+| PUT | `/api/transactions/:id` | Edit an entry (same body as POST) |
 | DELETE | `/api/transactions/:id` | Delete an entry |

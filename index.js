@@ -100,6 +100,23 @@ app.post('/api/transactions', async (req, res, next) => {
   }
 });
 
+// Edit replaces the whole entry (so switching type drops old fields) but keeps its
+// original createdAt, which breaks ties between entries on the same date.
+app.put('/api/transactions/:id', async (req, res, next) => {
+  try {
+    if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Bad id' });
+    const _id = new ObjectId(req.params.id);
+    const existing = await transactions.findOne({ _id });
+    if (!existing) return res.status(404).json({ error: 'Entry not found' });
+    const { doc, error } = validate(req.body || {});
+    if (error) return res.status(400).json({ error });
+    await transactions.replaceOne({ _id }, { ...doc, createdAt: existing.createdAt, updatedAt: new Date() });
+    res.json(await summary());
+  } catch (e) {
+    next(e);
+  }
+});
+
 app.delete('/api/transactions/:id', async (req, res, next) => {
   try {
     if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Bad id' });
